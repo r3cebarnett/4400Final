@@ -39,7 +39,8 @@ class UserInterface(Thread):
         while True:
             msg = input(">> ")
             if msg.lower() == "exit":
-                print("\n[-] Stopping thread for UI")
+                print("[-] Stopping thread for UI")
+                break
             else:
                 print("[?] Functionality not supported!")
 
