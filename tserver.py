@@ -21,10 +21,10 @@ class ClientThread(Thread):
     def run(self):
         while True:
             data = self.conn.recv(1024)
-            print("Server received", data)
-            if str(data).startswith("exit"):
+            print("Server received", str(data, encoding='utf-8'))
+            if str(data, encoding='utf-8').startswith("exit"):
                 break
-            self.conn.sendall(f"Message Received, {self.ip}:{self.port}")
+            self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
 
 
 # Class for handling User IO
