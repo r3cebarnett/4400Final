@@ -24,6 +24,7 @@ class ClientThread(Thread):
             data = self.conn.recv(1024)
             print("Server received", str(data, encoding='utf-8'))
             if str(data, encoding='utf-8').startswith("exit"):
+                print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
                 break
             self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
 
@@ -38,7 +39,7 @@ class UserInterface(Thread):
         while True:
             msg = input(">> ")
             if msg.lower() == "exit":
-                sys.exit(1)
+                print("\n[-] Stopping thread for UI")
             else:
                 print("[?] Functionality not supported!")
 
@@ -57,7 +58,7 @@ uiThread.start()
 clientThreads = []
 
 while True:
-    s.listen(4)
+    s.listen()
     (conn, (ip, port)) = s.accept()
     newconn = ClientThread(ip, port, conn)
     newconn.start()
