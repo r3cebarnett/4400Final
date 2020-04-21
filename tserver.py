@@ -4,6 +4,7 @@
 # Server to actively monitor connections
 # Each client connection
 
+import sys
 import socket
 from threading import Thread
 from socketserver import ThreadingMixIn
@@ -37,7 +38,7 @@ class UserInterface(Thread):
         while True:
             msg = input(">> ")
             if msg.lower() == "exit":
-                break
+                sys.exit(1)
             else:
                 print("[?] Functionality not supported!")
 

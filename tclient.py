@@ -16,5 +16,6 @@ while not msg.startswith('exit'):
     data = s.recv(BUF_SIZE)
     print("[+] Received data", str(data, encoding='utf-8'))
     msg = input(">> ")
-
+    
+s.sendall(bytes("exit", encoding='utf-8'))
 s.close()
