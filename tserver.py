@@ -44,7 +44,7 @@ class UserInterface(Thread):
 
 # Main Server Part
 HOST = "10.10.1.2"
-PORT = "20202"
+PORT = 20202
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
