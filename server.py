@@ -1,7 +1,9 @@
+#!/usr/bin/python3
+
 import sys
 import socket
 
-HOST = '127.0.0.1'
+HOST = '10.10.1.2'
 PORT = 65432
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
