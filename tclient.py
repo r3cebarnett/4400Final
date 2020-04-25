@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import socket
+import time
+import random
 
 HOST = "10.10.1.2"
 PORT = 20202
