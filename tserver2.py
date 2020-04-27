@@ -70,7 +70,7 @@ class ClientListener(Thread):
         while True:
             try:
                 self.s.listen()
-                (conn, (ip, port)) = s.accept()
+                (conn, (ip, port)) = self.s.accept()
                 newconn = ClientThread(ip, port, conn)
                 newconn.start()
                 threadList.append(newconn)
@@ -91,6 +91,7 @@ HOST = "10.10.1.2"
 PORT = 20202
 
 listener = ClientListener(HOST, PORT)
+listener.start()
 
 print(f"Welcome to PowerUI v0.0.0.c (Alpha)")
 
