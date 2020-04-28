@@ -73,7 +73,6 @@ class PollingThread(Thread):
 
         while not self.KILL:
             time.sleep(self.period)
-            self.sendPoll()
 
             with values_lock:
                 msg = bytes(f"poll {values['VOLTAGE']} {values['CURRENT']} {values['FREQ']}", 'utf-8')
