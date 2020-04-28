@@ -102,7 +102,7 @@ print("[+] Received param information from server, starting normal op")
 random.seed(time.time())
 data_thread = DataRandomizer()
 data_thread.start()
-polling_thread = PollingThread(params['PERIOD'])
+polling_thread = PollingThread(s, params['PERIOD'])
 polling_thread.start()
 
 # Give me test information
