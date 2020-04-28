@@ -72,12 +72,15 @@ class DataRandomizer(Thread):
             if (calc_v < local_v * (1 - local_thresh) or calc_v > local_v * (1 + local_thresh)):
                 # Breach of voltage
                 print(f"Breach of voltage detected: {calc_v}! Cfg: {local_v} +/- {local_thresh}")
+                psu_flag = True
             elif (calc_a < local_a * (1 - local_thresh) or calc_a > local_a * (1 + local_thresh)):
                 # Breach of current
                 print(f"Breach of current detected: {calc_a}! Cfg: {local_a} +/- {local_thresh}")
+                psu_flag = True
             elif (calc_f < local_f * (1 - local_thresh) or calc_f > local_f * (1 + local_thresh)):
                 # Breach of frequency
                 print(f"Breach of frequency detected: {calc_f}! Cfg: {local_f} +/- {local_thresh}")
+                psu_flag = True
             
             if psu_flag:
                 self.conn.sendall(bytes(f'alert {PSUList[0]} {PSUList[1]}', 'utf-8'))
