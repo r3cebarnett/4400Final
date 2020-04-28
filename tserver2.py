@@ -6,7 +6,6 @@
 
 import sys
 import socket
-import struct
 from threading import Thread
 from socketserver import ThreadingMixIn
 
@@ -33,9 +32,7 @@ class ClientThread(Thread):
         self.values = {
             'VOLTAGE': -1,
             'CURRENT': -1,
-            'FREQ': -1,
-            'THRESH': -1,
-            'PERIOD': -1
+            'FREQ': -1
         }
 
         self.name = None
@@ -63,10 +60,15 @@ class ClientThread(Thread):
                 elif args[0].startswith('alive'):
                     self.name = args[1]
                     print(f"\n[+] Received start request {self.ip}:{self.port}, {self.name}")
-                    packed_params = struct.pack('!ddddd', self.params['VOLTAGE'],
+                    conv_params = [str(x) for x in [self.params['VOLTAGE'],
                                                 self.params['CURRENT'], self.params['FREQ'],
-                                                self.params['THRESH'], self.params['PERIOD'])
-                    self.conn.sendall(packed_params)
+                                                self.params['THRESH'], self.params['PERIOD']]]
+                    msg = bytes(' '.join(conv_params), 'utf-8')
+                    self.conn.sendall(msg)
+                elif args[0].startswith('poll'):
+                    self.values['VOLTAGE'] = float(args[1])
+                    self.values['CURRENT'] = float(args[2])
+                    self.values['THRESH'] = float(args[3])
                 else:
                     self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
             except socket.timeout as e:
