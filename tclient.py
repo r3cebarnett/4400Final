@@ -75,8 +75,10 @@ class PollingThread(Thread):
             time.sleep(self.period)
 
             with values_lock:
-                msg = bytes(f"poll {values['VOLTAGE']} {values['CURRENT']} {values['FREQ']}", 'utf-8')
+                str_msg = f"poll {values['VOLTAGE']} {values['CURRENT']} {values['FREQ']}"
             
+            print(str_msg)
+            msg = bytes(str_msg, 'utf-8')
             self.conn.sendall(msg)
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

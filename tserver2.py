@@ -25,7 +25,7 @@ class ClientThread(Thread):
             'VOLTAGE': 1,
             'CURRENT': 2,
             'FREQ': 3,
-            'THRESH': 4,
+            'THRESH': .1,
             'PERIOD': 5
         }
 
