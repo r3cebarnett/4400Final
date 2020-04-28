@@ -164,13 +164,13 @@ polling_thread.start()
 s.settimeout(.5)
 while True:
     try:
-        raw_data = s.recv(BUF_SIZE)
-        args = str(raw_data, 'utf-8').split(' ')
-
         if data_thread.sysfail():
             print("[-] Stopping all processes")
             s.sendall(bytes('exit', encoding='utf-8'))
             break
+        
+        raw_data = s.recv(BUF_SIZE)
+        args = str(raw_data, 'utf-8').split(' ')
         if args[0] == 'exit':
             print("[-] Stopping all processes")
             break
