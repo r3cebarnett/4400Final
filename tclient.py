@@ -68,9 +68,9 @@ class DataRandomizer(Thread):
             calc_f = local_f * random.uniform(1 - local_thresh - var, 1 + local_thresh + var)
 
             with values_lock:
-                values['VOLTAGE'] = local_v
-                values['CURRENT'] = local_a
-                values['FREQ'] = local_f
+                values['VOLTAGE'] = calc_v
+                values['CURRENT'] = calc_a
+                values['FREQ'] = calc_f
             
             psu_flag = False
             if (calc_v < local_v * (1 - local_thresh) or calc_v > local_v * (1 + local_thresh)):
@@ -168,7 +168,7 @@ while True:
             print("[-] Stopping all processes")
             s.sendall(bytes('exit', encoding='utf-8'))
             break
-        
+
         raw_data = s.recv(BUF_SIZE)
         args = str(raw_data, 'utf-8').split(' ')
         if args[0] == 'exit':
