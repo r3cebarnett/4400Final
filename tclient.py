@@ -82,7 +82,10 @@ class PollingThread(Thread):
             
             print(str_msg)
             msg = bytes(str_msg, 'utf-8')
-            self.conn.sendall(msg)
+            try:
+                self.conn.sendall(msg)
+            except BrokenPipeError:
+                continue
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
@@ -135,8 +138,8 @@ while True:
         s.sendall(bytes('exit', encoding='utf-8'))
         break
 
-s.close()
 data_thread.stop()
 data_thread.join()
 polling_thread.stop()
 polling_thread.join()
+s.close()
