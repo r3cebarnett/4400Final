@@ -20,6 +20,25 @@ class ClientThread(Thread):
         self.port = port
         self.conn = conn
         self.KILL = False
+        self.alive = False
+
+        self.params = {
+            'VOLTAGE': 1,
+            'CURRENT': 2,
+            'FREQ': 3,
+            'THRESH': 4,
+            'PERIOD': 5
+        }
+
+        self.values = {
+            'VOLTAGE': -1,
+            'CURRENT': -1,
+            'FREQ': -1,
+            'THRESH': -1,
+            'PERIOD': -1
+        }
+
+
         print(f"\n[+] Started thread for servicing {self.ip}:{self.port}")
     
     def stop(self):
@@ -33,12 +52,20 @@ class ClientThread(Thread):
         while True:
             try:
                 data = self.conn.recv(1024)
-                print("Server received", str(data, encoding='utf-8'))
-                if str(data, encoding='utf-8').startswith('exit'):
+                decoded = str(data, encoding='utf-8')
+                print("Server received", decoded)
+                if decoded.startswith('exit'):
                     print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
                     threadList.remove(self)
                     break
-                self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
+                elif decoded.startswith('alive'):
+                    print(f"\n[+] Received start request {self.ip}:{self.port}, sending params")
+                    packed_params = struct.pack('!ddddd', params['VOLTAGE'],
+                                                params['CURRENT'], params['FREQ'],
+                                                params['THRESH'], params['PERIOD'])
+                    self.conn.sendall(packed_params)
+                else:
+                    self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
             except socket.timeout as e:
                 if self.KILL:
                     print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
