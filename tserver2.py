@@ -70,6 +70,8 @@ class ClientThread(Thread):
                     self.values['VOLTAGE'] = float(args[1])
                     self.values['CURRENT'] = float(args[2])
                     self.values['THRESH'] = float(args[3])
+                elif args[0].startswith('alert'):
+                    print(f"\n[!] Breach detected on {self.name}, switching from {args[1]} to {args[2]}")
                 else:
                     self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
             except socket.timeout as e:

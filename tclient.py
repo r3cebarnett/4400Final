@@ -26,13 +26,18 @@ values = {
     'FREQ': -1
 }
 
+PSUList = [1, 2, None]
+PSU = PSUList[0]
+SYSTEM_FAILURE = False
+
 params_lock = Lock()
 values_lock = Lock()
 
 class DataRandomizer(Thread):
-    def __init__(self):
+    def __init__(self, conn):
         Thread.__init__(self)
         self.KILL = False
+        self.conn = conn
     
     def stop(self):
         self.KILL = True
@@ -42,19 +47,45 @@ class DataRandomizer(Thread):
         global params_lock
         global values
         global values_lock
+        global PSU
+        global PSUList
+        global SYSTEM_FAILURE
 
         while not self.KILL:
-            # Randomize Values, TODO place lock on values and param
             local_thresh = 0
             with params_lock:
                 local_thresh = params['THRESH']
                 local_v = params['VOLTAGE']
                 local_a = params['CURRENT']
                 local_f = params['FREQ']
+
+            calc_v = local_v * random.uniform(1 - local_thresh - .02, 1 + local_thresh + .02)
+            calc_a = local_a * random.uniform(1 - local_thresh - .02, 1 + local_thresh + .02)
+            calc_f = local_f * random.uniform(1 - local_thresh - .02, 1 + local_thresh + .02)
+
             with values_lock:
-                values['VOLTAGE'] = local_v * random.uniform(1 - local_thresh, 1 + local_thresh)
-                values['CURRENT'] = local_a * random.uniform(1 - local_thresh, 1 + local_thresh)
-                values['FREQ'] = local_f * random.uniform(1 - local_thresh, 1 + local_thresh)
+                values['VOLTAGE'] = local_v
+                values['CURRENT'] = local_a
+                values['FREQ'] = local_f
+            
+            psu_flag = False
+            if (calc_v < local_v * (1 - local_thresh) or calc_v > local_v * (1 + local_thresh)):
+                # Breach of voltage
+                print(f"Breach of voltage detected: {calc_v}! Cfg: {local_v} +/- {local_thresh}")
+            elif (calc_a < local_a * (1 - local_thresh) or calc_a > local_a * (1 + local_thresh)):
+                # Breach of current
+                print(f"Breach of current detected: {calc_a}! Cfg: {local_a} +/- {local_thresh}")
+            elif (calc_f < local_f * (1 - local_thresh) or calc_f > local_f * (1 + local_thresh)):
+                # Breach of frequency
+                print(f"Breach of frequency detected: {calc_f}! Cfg: {local_f} +/- {local_thresh}")
+            
+            if psu_flag:
+                self.conn.sendall(bytes(f'alert {PSUList[0]} {PSUList[1]}', 'utf-8'))
+                PSUList.remove(PSU)
+                PSU = PSUList[0]
+                if PSU == None:
+                    SYSTEM_FAILURE = True
+                    break
 
 
 class PollingThread(Thread):
@@ -79,7 +110,7 @@ class PollingThread(Thread):
 
             if self.KILL:
                 break
-            
+
             with values_lock:
                 str_msg = f"poll {values['VOLTAGE']} {values['CURRENT']} {values['FREQ']}"
             
@@ -110,7 +141,7 @@ print("[+] Received param information from server, starting normal op")
 
 # Spawn the threads for watching data, making data, listening for server requests, and polling
 random.seed(time.time())
-data_thread = DataRandomizer()
+data_thread = DataRandomizer(s)
 data_thread.start()
 polling_thread = PollingThread(s, params['PERIOD'])
 polling_thread.start()
@@ -129,6 +160,8 @@ while True:
         raw_data = s.recv(BUF_SIZE)
         args = str(raw_data, 'utf-8').split(' ')
 
+        if SYSTEM_FAILURE:
+            raise KeyboardInterrupt
         if args[0] == 'exit':
             print("[-] Stopping all processes")
             break
