@@ -77,6 +77,9 @@ class PollingThread(Thread):
         while not self.KILL:
             time.sleep(self.period)
 
+            if self.KILL:
+                break
+            
             with values_lock:
                 str_msg = f"poll {values['VOLTAGE']} {values['CURRENT']} {values['FREQ']}"
             
