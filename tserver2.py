@@ -38,6 +38,7 @@ class ClientThread(Thread):
             'PERIOD': -1
         }
 
+        self.name = None
 
         print(f"\n[+] Started thread for servicing {self.ip}:{self.port}")
     
@@ -54,15 +55,17 @@ class ClientThread(Thread):
                 data = self.conn.recv(1024)
                 decoded = str(data, encoding='utf-8')
                 print("Server received", decoded)
-                if decoded.startswith('exit'):
+                args = decoded.split(' ')
+                if args[0].startswith('exit'):
                     print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
                     threadList.remove(self)
                     break
-                elif decoded.startswith('alive'):
-                    print(f"\n[+] Received start request {self.ip}:{self.port}, sending params")
-                    packed_params = struct.pack('!ddddd', params['VOLTAGE'],
-                                                params['CURRENT'], params['FREQ'],
-                                                params['THRESH'], params['PERIOD'])
+                elif args[0].startswith('alive'):
+                    self.name = args[1]
+                    print(f"\n[+] Received start request {self.ip}:{self.port}, {self.name}")
+                    packed_params = struct.pack('!ddddd', self.params['VOLTAGE'],
+                                                self.params['CURRENT'], self.params['FREQ'],
+                                                self.params['THRESH'], self.params['PERIOD'])
                     self.conn.sendall(packed_params)
                 else:
                     self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
