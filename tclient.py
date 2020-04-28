@@ -28,7 +28,6 @@ values = {
 
 PSUList = [1, 2, None]
 PSU = PSUList[0]
-SYSTEM_FAILURE = False
 
 params_lock = Lock()
 values_lock = Lock()
@@ -38,6 +37,10 @@ class DataRandomizer(Thread):
         Thread.__init__(self)
         self.KILL = False
         self.conn = conn
+        self.SYSTEM_FAILURE = False
+    
+    def sysfail(self):
+        return self.SYSTEM_FAILURE
     
     def stop(self):
         self.KILL = True
@@ -49,7 +52,6 @@ class DataRandomizer(Thread):
         global values_lock
         global PSU
         global PSUList
-        global SYSTEM_FAILURE
 
         var = .00001
 
@@ -89,7 +91,7 @@ class DataRandomizer(Thread):
                 PSUList.remove(PSU)
                 PSU = PSUList[0]
                 if PSU == None:
-                    SYSTEM_FAILURE = True
+                    self.SYSTEM_FAILURE = True
                     break
 
 
@@ -165,7 +167,7 @@ while True:
         raw_data = s.recv(BUF_SIZE)
         args = str(raw_data, 'utf-8').split(' ')
 
-        if SYSTEM_FAILURE:
+        if data_thread.sysfail():
             print("[-] Stopping all processes")
             s.sendall(bytes('exit', encoding='utf-8'))
             break
