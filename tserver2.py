@@ -33,12 +33,16 @@ class ClientThread(Thread):
         while True:
             try:
                 data = self.conn.recv(1024)
-                print("Server received", str(data, encoding='utf-8'))
-                if str(data, encoding='utf-8').startswith('exit'):
-                    print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
-                    threadList.remove(self)
-                    break
-                self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
+                print("Server received", data)
+                try:
+                    s = str(data, encoding='utf-8')
+                    if s.startswith('exit'):
+                        print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
+                        threadList.remove(self)
+                        break
+                    self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
+                except UnicodeDecodeError:
+                    pass
             except socket.timeout as e:
                 if self.KILL:
                     print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
