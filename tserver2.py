@@ -75,7 +75,6 @@ class ClientThread(Thread):
             except socket.timeout as e:
                 if self.KILL:
                     print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
-                    self.conn.sendall(bytes(f"Disconnecting from server", encoding='utf-8'))
                     self.conn.sendall(bytes(f"exit", encoding='utf-8'))
                     return
                 else:

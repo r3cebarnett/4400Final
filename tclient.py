@@ -132,11 +132,11 @@ while True:
         continue
     except KeyboardInterrupt:
         print("[-] Stopping all processes")
+        s.sendall(bytes('exit', encoding='utf-8'))
         break
 
+s.close()
 data_thread.stop()
 data_thread.join()
 polling_thread.stop()
 polling_thread.join()
-s.sendall(bytes('exit', encoding='utf-8'))
-s.close()
