@@ -51,7 +51,7 @@ class ClientThread(Thread):
             try:
                 data = self.conn.recv(1024)
                 decoded = str(data, encoding='utf-8')
-                print("Server received", decoded)
+                print("\n[*] Server received", decoded)
                 args = decoded.split(' ')
                 if args[0].startswith('exit'):
                     print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
@@ -66,6 +66,7 @@ class ClientThread(Thread):
                     msg = bytes(' '.join(conv_params), 'utf-8')
                     self.conn.sendall(msg)
                 elif args[0].startswith('poll'):
+                    print(f"\n[*] Received poll from {self.name}")
                     self.values['VOLTAGE'] = float(args[1])
                     self.values['CURRENT'] = float(args[2])
                     self.values['THRESH'] = float(args[3])
@@ -136,5 +137,8 @@ while True:
         listener.join()
 
         break
+    elif msg.lower() == "status":
+        for i in threadList:
+            print(f"[*] {i.name} - {i.values['VOLTAGE']}/{i.values['CURRENT']}/{i.values['FREQ']}")
     else:
         print("[?] Functionality not supported!")
