@@ -51,6 +51,8 @@ class DataRandomizer(Thread):
         global PSUList
         global SYSTEM_FAILURE
 
+        var = .00001
+
         while not self.KILL:
             local_thresh = 0
             with params_lock:
@@ -59,9 +61,9 @@ class DataRandomizer(Thread):
                 local_a = params['CURRENT']
                 local_f = params['FREQ']
 
-            calc_v = local_v * random.uniform(1 - local_thresh - .02, 1 + local_thresh + .02)
-            calc_a = local_a * random.uniform(1 - local_thresh - .02, 1 + local_thresh + .02)
-            calc_f = local_f * random.uniform(1 - local_thresh - .02, 1 + local_thresh + .02)
+            calc_v = local_v * random.uniform(1 - local_thresh - var, 1 + local_thresh + var)
+            calc_a = local_a * random.uniform(1 - local_thresh - var, 1 + local_thresh + var)
+            calc_f = local_f * random.uniform(1 - local_thresh - var, 1 + local_thresh + var)
 
             with values_lock:
                 values['VOLTAGE'] = local_v
@@ -142,13 +144,6 @@ params['THRESH'] = params_raw[3]
 params['PERIOD'] = params_raw[4]
 print("[+] Received param information from server, starting normal op")
 
-# Spawn the threads for watching data, making data, listening for server requests, and polling
-random.seed(time.time())
-data_thread = DataRandomizer(s)
-data_thread.start()
-polling_thread = PollingThread(s, params['PERIOD'])
-polling_thread.start()
-
 # Give me test information
 print('=== PARAMS ===')
 print('voltage', params['VOLTAGE'])
@@ -157,6 +152,13 @@ print('freq', params['FREQ'])
 print('thresh', params['THRESH'])
 print('period', params['PERIOD'])
 
+# Spawn the threads for watching data, making data, listening for server requests, and polling
+random.seed(time.time())
+data_thread = DataRandomizer(s)
+data_thread.start()
+polling_thread = PollingThread(s, params['PERIOD'])
+polling_thread.start()
+
 s.settimeout(.5)
 while True:
     try:
@@ -164,7 +166,9 @@ while True:
         args = str(raw_data, 'utf-8').split(' ')
 
         if SYSTEM_FAILURE:
-            raise KeyboardInterrupt
+            print("[-] Stopping all processes")
+            s.sendall(bytes('exit', encoding='utf-8'))
+            break
         if args[0] == 'exit':
             print("[-] Stopping all processes")
             break
