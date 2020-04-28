@@ -48,10 +48,13 @@ class DataRandomizer(Thread):
             local_thresh = 0
             with params_lock:
                 local_thresh = params['THRESH']
+                local_v = params['VOLTAGE']
+                local_a = params['CURRENT']
+                local_f = params['FREQ']
             with values_lock:
-                values['VOLTAGE'] = values['VOLTAGE'] * random.uniform(1 - local_thresh, 1 + local_thresh)
-                values['CURRENT'] = values['CURRENT'] * random.uniform(1 - local_thresh, 1 + local_thresh)
-                values['FREQ'] = values['FREQ'] * random.uniform(1 - local_thresh, 1 + local_thresh)
+                values['VOLTAGE'] = local_v * random.uniform(1 - local_thresh, 1 + local_thresh)
+                values['CURRENT'] = local_a * random.uniform(1 - local_thresh, 1 + local_thresh)
+                values['FREQ'] = local_f * random.uniform(1 - local_thresh, 1 + local_thresh)
 
 
 class PollingThread(Thread):
