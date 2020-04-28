@@ -101,9 +101,9 @@ print("[+] Received param information from server, starting normal op")
 # Spawn the threads for watching data, making data, listening for server requests, and polling
 random.seed(time.time())
 data_thread = DataRandomizer()
-data_thread.run()
+data_thread.start()
 polling_thread = PollingThread(params['PERIOD'])
-polling_thread.run()
+polling_thread.start()
 
 # Give me test information
 print('=== PARAMS ===')
@@ -113,20 +113,26 @@ print('freq', params['FREQ'])
 print('thresh', params['THRESH'])
 print('period', params['PERIOD'])
 
-"""
+s.settimeout(.5)
+while True:
+    try:
+        raw_data = s.recv(BUF_SIZE)
+        args = str(raw_data, 'utf-8').split(' ')
+
+        if args[0] == 'exit':
+            print("[-] Stopping all processes")
+            break
+        else:
+            continue
+    except socket.timeout:
+        continue
+    except KeyboardInterrupt:
+        print("[-] Stopping all processes")
+        break
+
+data_thread.stop()
+data_thread.join()
+polling_thread.stop()
+polling_thread.join()
 s.sendall(bytes('exit', encoding='utf-8'))
 s.close()
-print("[-] Sent quit request")
-"""
-
-try:
-    while(True):
-        time.sleep(1)
-except KeyboardInterrupt:
-    print("[-] Stopping all processes")
-    data_thread.stop()
-    data_thread.join()
-    polling_thread.stop()
-    polling_thread.join()
-    s.sendall(bytes('exit', encoding='utf-8'))
-    s.close()
