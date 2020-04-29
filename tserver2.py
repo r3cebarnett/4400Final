@@ -209,5 +209,7 @@ while True:
                     i.sendCommand(msg)
             else:
                 threadList[int(args[1])].sendCommand(msg)
+        except:
+            print("Malformed Command")
     else:
         print("[?] Functionality not supported!")
