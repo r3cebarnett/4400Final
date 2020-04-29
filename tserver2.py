@@ -217,5 +217,11 @@ while True:
                 threadList[int(args[1])].sendCommand(msg)
         except:
             print("Malformed command")
+    elif args[0] == "help":
+        print("status <all | device>")
+        print("changeParam <all | device> <voltage> <amperage> <freq> <thresh> <period>")
+        print("listPower <all | device>")
+        print("addPower <all | device> <PSU>")
+        print("delPower <all | device> <PSU>")
     else:
         print("[?] Functionality not supported!")
