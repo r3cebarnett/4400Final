@@ -74,7 +74,7 @@ class ClientThread(Thread):
                     #print(f"\n[*] Received poll from {self.name}")
                     self.values['VOLTAGE'] = float(args[1])
                     self.values['CURRENT'] = float(args[2])
-                    self.values['THRESH'] = float(args[3])
+                    self.values['FREQ'] = float(args[3])
 
                 elif args[0].startswith('alert'):
                     print(f"\n[!] Breach detected on {self.name}, switching from {args[1]} to {args[2]}")
@@ -182,7 +182,7 @@ while True:
                     print("Invalid index")
         except:
             print("Malformed command")
-            
+
     elif args[0] == "delPower":
         try:
             msg = bytes(f"delPower {int(args[2])}", 'utf-8')
