@@ -126,9 +126,13 @@ class PollingThread(Thread):
                 break
 
             with values_lock:
-                str_msg = f"poll {values['VOLTAGE']} {values['CURRENT']} {values['FREQ']}"
+                local_v = values['VOLTAGE']
+                local_a = values['CURRENT']
+                local_f = values['FREQ']
             
-            print(str_msg)
+            str_msg = f"poll {local_v} {local_a} {local_f}"
+            print(local_v, local_a, local_f, sep='\t\t')
+
             msg = bytes(str_msg, 'utf-8')
             try:
                 self.conn.sendall(msg)
@@ -160,6 +164,10 @@ print('current', params['CURRENT'])
 print('freq', params['FREQ'])
 print('thresh', params['THRESH'])
 print('period', params['PERIOD'])
+
+# Polling information
+print('\n=== POLLING INFORMATION ===')
+print('V\t\tA\t\tHz')
 
 # Spawn the threads for watching data, making data, listening for server requests, and polling
 random.seed(time.time())
