@@ -210,6 +210,7 @@ while True:
                     params['THRESH'] = newThresh
                 if newPeriod > 0:
                     params['PERIOD'] = newPeriod
+                    polling_thread.setPeriod(newPeriod)
         else:
             continue
     except socket.timeout:
