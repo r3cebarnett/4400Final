@@ -190,7 +190,7 @@ while True:
                 continue
         elif args[0] == 'listPower':
             with PSU_lock:
-                s.sendall(bytes('listPower ' +', '.join([str(x) for x in PSUList[:-1]])))
+                s.sendall(bytes('listPower ' +', '.join([str(x) for x in PSUList[:-1]]), 'utf-8'))
         elif args[0] == 'changeParam':
             newVolt = float(args[1])
             newCurr = float(args[2])
