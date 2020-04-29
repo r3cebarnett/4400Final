@@ -203,19 +203,19 @@ while True:
         except:
             print("Malformed command")
     elif args[0] == "changeParam":
-        #try:
-        newVolt = float(args[2])
-        newCurr = float(args[3])
-        newFreq = float(args[4])
-        newThresh = float(args[5])
-        newPeriod = float(args[6])
-        msg = bytes(f"changeParam {newVolt} {newCurr} {newFreq} {newThresh} {newPeriod}", 'utf-8')
-        if args[1] == 'all':
-            for i in threadList:
-                i.sendCommand(msg)
-        else:
-            threadList[int(args[1])].sendCommand(msg)
-        #except:
-        #    print("Malformed command")
+        try:
+            newVolt = float(args[2])
+            newCurr = float(args[3])
+            newFreq = float(args[4])
+            newThresh = float(args[5])
+            newPeriod = float(args[6])
+            msg = bytes(f"changeParam {newVolt} {newCurr} {newFreq} {newThresh} {newPeriod}", 'utf-8')
+            if args[1] == 'all':
+                for i in threadList:
+                    i.sendCommand(msg)
+            else:
+                threadList[int(args[1])].sendCommand(msg)
+        except:
+            print("Malformed command")
     else:
         print("[?] Functionality not supported!")

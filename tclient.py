@@ -10,7 +10,10 @@ HOST = "10.10.1.2"
 PORT = 20202
 BUF_SIZE = 1024
 
-CLIENT_NAME = 'TestMachine'
+if len(sys.argv) > 1:
+    CLIENT_NAME = sys.argv[1]
+else:
+    CLIENT_NAME = 'TestMachine'
 
 params = {
     'VOLTAGE': -1,
