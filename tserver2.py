@@ -160,7 +160,7 @@ while True:
                     i = threadList[index]
                     print(f"[{index}] {i.name} - {i.values['VOLTAGE']}/{i.values['CURRENT']}/{i.values['FREQ']}")
                 except:
-                    print(f"Error selecting index {i}")
+                    print(f"Error selecting index {index}")
         except:
             print("Malformed command")
 
