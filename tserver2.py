@@ -138,10 +138,10 @@ PORT = 20202
 listener = ClientListener(HOST, PORT)
 listener.start()
 
-print(f"Welcome to PowerUI v0.0.0.c (Alpha)")
+print(f"Welcome to PowerUI v0.0.0.d (Beta)")
 
 while True:
-    args = input(">> ").split(' ')
+    args = input().split(' ')
     if args[0] == "exit":
         print("[-] Exiting Program")
 
