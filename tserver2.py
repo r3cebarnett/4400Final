@@ -10,6 +10,7 @@ from threading import Thread
 from socketserver import ThreadingMixIn
 
 threadList = []
+BUF_SIZE = 1024
 
 # Class for handling Clients
 class ClientThread(Thread):
@@ -40,20 +41,22 @@ class ClientThread(Thread):
         print(f"\n[+] Started thread for servicing {self.ip}:{self.port}")
     
     def sendCommand(self, cmd):
-        self.conn.sendall(cmd)
+        msg = cmd + bytes(' ' * (100 - len(cmd)), 'utf-8')
+        self.conn.sendall(msg)
     
     def stop(self):
         self.KILL = True
     
     def run(self):
         global threadList
+        global BUF_SIZE
 
         self.conn.settimeout(.5) # Half second timeout
 
         while True:
             try:
-                data = self.conn.recv(1024)
-                decoded = str(data, encoding='utf-8')
+                data = self.conn.recv(BUF_SIZE)
+                decoded = str(data, encoding='utf-8').strip()
                 #print("\n[*] Server received {", decoded, "}")
                 args = decoded.split(' ')
                 if args[0].startswith('exit'):
@@ -68,6 +71,7 @@ class ClientThread(Thread):
                                                 self.params['CURRENT'], self.params['FREQ'],
                                                 self.params['THRESH'], self.params['PERIOD']]]
                     msg = bytes(' '.join(conv_params), 'utf-8')
+                    msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
                     self.conn.sendall(msg)
 
                 elif args[0].startswith('poll'):
@@ -83,12 +87,16 @@ class ClientThread(Thread):
                     print(f"Power devices from {self.name}: {' '.join(args[1:])}")
 
                 else:
-                    self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
+                    msg = bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8')
+                    msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
+                    self.conn.sendall(msg)
 
             except socket.timeout as e:
                 if self.KILL:
                     print(f"\n[-] Stopping thread for servicing {self.ip}:{self.port}")
-                    self.conn.sendall(bytes(f"exit", encoding='utf-8'))
+                    msg = bytes(f"exit", encoding='utf-8')
+                    msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
+                    self.conn.sendall(msg)
                     return
                 else:
                     continue

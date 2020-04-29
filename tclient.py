@@ -8,7 +8,7 @@ from threading import Thread, Lock
 
 HOST = "10.10.1.2"
 PORT = 20202
-BUF_SIZE = 1024
+BUF_SIZE = 100
 
 if len(sys.argv) > 1:
     CLIENT_NAME = sys.argv[1]
@@ -92,7 +92,9 @@ class DataRandomizer(Thread):
                 psu_flag = True
             
             if psu_flag:
-                self.conn.sendall(bytes(f'alert {PSUList[0]} {PSUList[1]}', 'utf-8'))
+                msg = bytes(f'alert {PSUList[0]} {PSUList[1]}', 'utf-8')
+                msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
+                self.conn.sendall(msg)
                 with PSU_lock:
                     PSUList.remove(PSUList[0])
             
@@ -135,6 +137,7 @@ class PollingThread(Thread):
 
             msg = bytes(str_msg, 'utf-8')
             try:
+                msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
                 self.conn.sendall(msg)
             except BrokenPipeError:
                 continue
@@ -143,12 +146,14 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
 
 # Send Notice Me Senpai Message :3
-s.sendall(bytes('alive' + ' ' + CLIENT_NAME, encoding='utf-8'))
+msg = bytes('alive' + ' ' + CLIENT_NAME, encoding='utf-8')
+msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
+s.sendall(msg)
 print("[+] Sent join request to server")
 
 # Get params back from server, should lock here until it's given..
 recv_data = s.recv(BUF_SIZE)
-data_raw = str(recv_data, 'utf-8')
+data_raw = str(recv_data, 'utf-8').strip()
 params_raw = [float(x) for x in data_raw.split(' ')]
 params['VOLTAGE'] = params_raw[0]
 params['CURRENT'] = params_raw[1]
@@ -181,11 +186,13 @@ while True:
     try:
         if data_thread.sysfail():
             print("[-] Stopping all processes")
-            s.sendall(bytes('exit', encoding='utf-8'))
+            msg = bytes('exit', encoding='utf-8')
+            msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
+            s.sendall(msg)
             break
 
         raw_data = s.recv(BUF_SIZE)
-        args = str(raw_data, 'utf-8').split(' ')
+        args = str(raw_data, 'utf-8').strip().split(' ')
         if args[0] == 'exit':
             print("[-] Stopping all processes")
             break
@@ -202,7 +209,9 @@ while True:
                 continue
         elif args[0] == 'listPower':
             with PSU_lock:
-                s.sendall(bytes('listPower ' +', '.join([str(x) for x in PSUList[:-1]]), 'utf-8'))
+                msg = bytes('listPower ' +', '.join([str(x) for x in PSUList[:-1]]), 'utf-8')
+                msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
+                s.sendall(msg)
         elif args[0] == 'changeParam':
             newVolt = float(args[1])
             newCurr = float(args[2])
@@ -228,7 +237,9 @@ while True:
         continue
     except KeyboardInterrupt:
         print("[-] Stopping all processes")
-        s.sendall(bytes('exit', encoding='utf-8'))
+        msg = bytes('exit', encoding='utf-8')
+        msg = msg + bytes(' ' * (100 - len(msg)), 'utf-8')
+        s.sendall(msg)
         break
 
 data_thread.stop()
