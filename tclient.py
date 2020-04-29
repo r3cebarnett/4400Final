@@ -31,6 +31,7 @@ PSU = PSUList[0]
 
 params_lock = Lock()
 values_lock = Lock()
+PSU_lock = Lock()
 
 class DataRandomizer(Thread):
     def __init__(self, conn):
@@ -50,8 +51,8 @@ class DataRandomizer(Thread):
         global params_lock
         global values
         global values_lock
-        global PSU
         global PSUList
+        global PSU_lock
 
         var = .00001
 
@@ -88,9 +89,11 @@ class DataRandomizer(Thread):
             
             if psu_flag:
                 self.conn.sendall(bytes(f'alert {PSUList[0]} {PSUList[1]}', 'utf-8'))
-                PSUList.remove(PSU)
-                PSU = PSUList[0]
-                if PSU == None:
+                with PSU_lock:
+                    PSUList.remove(PSUList[0])
+            
+            with PSU_lock:
+                if PSUList[0] == None:
                     self.SYSTEM_FAILURE = True
                     break
 
@@ -174,6 +177,38 @@ while True:
         if args[0] == 'exit':
             print("[-] Stopping all processes")
             break
+        elif args[0] == 'addPower':
+            new_psu = int(args[1])
+            if new_psu not in PSUList:
+                PSUList.insert(-1, int(args[1]))
+        elif args[0] == 'delPower':
+            try:
+                old_psu = int(args[1])
+                with PSU_lock:
+                    PSUList.remove(old_psu)
+            except ValueError:
+                continue
+        elif args[0] == 'listPower':
+            with PSU_lock:
+                s.sendall(bytes('listPower ' +', '.join(PSUList[:-1])))
+        elif args[0] == 'changeParam':
+            newVolt = float(args[1])
+            newCurr = float(args[2])
+            newFreq = float(args[3])
+            newThresh = float(args[4])
+            newPeriod = float(args[5])
+
+            with params_lock:
+                if newVolt > 0:
+                    params['VOLTAGE'] = newVolt
+                if newCurr > 0:
+                    params['CURRENT'] = newCurr
+                if newFreq > 0:
+                    params['FREQ'] = newFreq
+                if newThresh > 0:
+                    params['THRESH'] = newThresh
+                if newPeriod > 0:
+                    params['PERIOD'] = newPeriod
         else:
             continue
     except socket.timeout:
