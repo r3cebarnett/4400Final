@@ -150,16 +150,19 @@ while True:
 
         break
     elif args[0] == "status":
-        if args[1] == "all":
-            for index, i in zip(threadList, range(len(threadList))):
-                print(f"[{index}] {i.name} - {i.values['VOLTAGE']}/{i.values['CURRENT']}/{i.values['FREQ']}")
-        else:
-            try:
-                index = int(args[1])
-                i = threadList[index]
-                print(f"[{index}] {i.name} - {i.values['VOLTAGE']}/{i.values['CURRENT']}/{i.values['FREQ']}")
-            except:
-                print(f"Error selecting index {i}")
+        try:
+            if args[1] == "all":
+                for i, index in zip(threadList, range(len(threadList))):
+                    print(f"[{index}] {i.name} - {i.values['VOLTAGE']}/{i.values['CURRENT']}/{i.values['FREQ']}")
+            else:
+                try:
+                    index = int(args[1])
+                    i = threadList[index]
+                    print(f"[{index}] {i.name} - {i.values['VOLTAGE']}/{i.values['CURRENT']}/{i.values['FREQ']}")
+                except:
+                    print(f"Error selecting index {i}")
+        except:
+            print("Malformed command")
 
     elif args[0] == "addPower":
         try:
@@ -167,15 +170,19 @@ while True:
         except:
             print("Invalid PSU")
         
-        if args[1] == 'all':
-            for i in threadList:
-                i.sendCommand(bytes(f'addPower {psu}', 'utf-8'))
-        else:
-            try:
-                index = int(args[i])
-                threadList[index].sendCommand(bytes(f'addPower {psu}', 'utf-8'))
-            except:
-                print("Invalid index")
+        try:
+            if args[1] == 'all':
+                for i in threadList:
+                    i.sendCommand(bytes(f'addPower {psu}', 'utf-8'))
+            else:
+                try:
+                    index = int(args[i])
+                    threadList[index].sendCommand(bytes(f'addPower {psu}', 'utf-8'))
+                except:
+                    print("Invalid index")
+        except:
+            print("Malformed command")
+            
     elif args[0] == "delPower":
         try:
             msg = bytes(f"delPower {int(args[2])}", 'utf-8')
