@@ -54,7 +54,8 @@ class DataRandomizer(Thread):
         global PSUList
         global PSU_lock
 
-        var = .00001
+        #var = .00001
+        var = 0
 
         while not self.KILL:
             local_thresh = 0

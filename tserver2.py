@@ -80,7 +80,7 @@ class ClientThread(Thread):
                     print(f"\n[!] Breach detected on {self.name}, switching from {args[1]} to {args[2]}")
 
                 elif args[0].startswith('listPower'):
-                    print(f"Power devices from {self.name}: {args[1:]}")
+                    print(f"Power devices from {self.name}: {' '.join(args[1:])}")
 
                 else:
                     self.conn.sendall(bytes(f"Message Received, {self.ip}:{self.port}", encoding='utf-8'))
@@ -176,8 +176,7 @@ while True:
                     i.sendCommand(bytes(f'addPower {psu}', 'utf-8'))
             else:
                 try:
-                    index = int(args[i])
-                    threadList[index].sendCommand(bytes(f'addPower {psu}', 'utf-8'))
+                    threadList[int(args[1])].sendCommand(bytes(f'addPower {psu}', 'utf-8'))
                 except:
                     print("Invalid index")
         except:
