@@ -209,7 +209,7 @@ while True:
         newFreq = float(args[4])
         newThresh = float(args[5])
         newPeriod = float(args[6])
-        msg = bytes(f"changeParam {newVolt} {newCurr} {newFreq} {newThresh} {newPeriod}")
+        msg = bytes(f"changeParam {newVolt} {newCurr} {newFreq} {newThresh} {newPeriod}", 'utf-8')
         if args[1] == 'all':
             for i in threadList:
                 i.sendCommand(msg)
